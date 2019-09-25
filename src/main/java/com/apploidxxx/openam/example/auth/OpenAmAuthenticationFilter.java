@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,8 +27,6 @@ import java.util.Optional;
 @Component
 public class OpenAmAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-    private final String OPENAM_LOGIN_URL = "http://openam-01.domain.com:8080/openam/XUI/#login/";
-    private final String OPENAM_ATTRIBUTES_URL = "http://openam-01.domain.com:8080/openam/identity/json/attributes";
     private final String HOME_PAGE_URL = "http://openam-01.domain.com:8888/test/home";
 
     OpenAmAuthenticationFilter() {
@@ -38,7 +35,7 @@ public class OpenAmAuthenticationFilter extends AbstractAuthenticationProcessing
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException, IOException, ServletException {
+            throws AuthenticationException, IOException {
         Optional<Cookie> iPlanetDirectoryPro = getCookie(request);
 
         String redirectUrl = getRedirectURLAfterSuccessAuth(request, response);
@@ -85,7 +82,7 @@ public class OpenAmAuthenticationFilter extends AbstractAuthenticationProcessing
     }
 
     private ResponseEntity<OpenAmAttributeResponse> getAttributeFromOpenAMRest(HttpEntity entity){
-        return new RestTemplate().exchange(OPENAM_ATTRIBUTES_URL, HttpMethod.GET, entity, OpenAmAttributeResponse.class);
+        return new RestTemplate().exchange(OpenAmUrls.OPENAM_ATTRIBUTES_URL, HttpMethod.GET, entity, OpenAmAttributeResponse.class);
     }
 
     private Optional<String> getUsernameByUID(OpenAmAttributeResponse attributesResponse){
@@ -119,7 +116,7 @@ public class OpenAmAuthenticationFilter extends AbstractAuthenticationProcessing
     }
 
     private String buildRedirectToLogin(String redirect){
-        return OPENAM_LOGIN_URL + "&goto=" + redirect;
+        return OpenAmUrls.OPENAM_LOGIN_URL + "&goto=" + redirect;
     }
 
     @Override
